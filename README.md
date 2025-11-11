@@ -1,118 +1,111 @@
-# MSLR: Multi-Step-Reasoning-Trace 中文多步法律推理基准测试集
+# MSLR: Multi-Step-Reasoning-Trace Chinese Multi-Step Legal Reasoning Benchmark Dataset
 
-随着大语言模型（LLMs）在法律应用中的快速发展，系统评估其在**判决预测中的推理能力**变得尤为迫切。目前公开的法律测评基准缺少统一的评估架构，对这两个任务的支持并不好。为填补这一空白，我们提出了 **MSLR**，填补了中文法律自然语言处理领域中结构化推理评估的关键空白，并为法律垂类大模型系统的评估与优化提供了坚实基础。更多详情可查看我们的论文。
+With the rapid development of large language models (LLMs) in legal applications, systematically evaluating their **reasoning ability in judgment prediction** has become increasingly urgent. Currently, publicly available legal evaluation benchmarks lack a unified evaluation framework and do not adequately support these two tasks. To fill this gap, we propose **MSLR**, addressing a critical gap in structured reasoning evaluation in the field of Chinese legal natural language processing, and providing a solid foundation for the evaluation and optimization of legal vertical domain large model systems. For more details, please refer to our paper.
 
+## 📄 Introduction
+MSLR is carefully designed to precisely evaluate large models' **legal document understanding and case analysis reasoning abilities**. We designed a semi-automated dataset construction scheme, building a comprehensive insider trading dataset through a **human + LLM** approach, which can also easily scale the dataset size and case types. On this basis, we designed two tasks: **structured information extraction** and **case fact analysis and judgment prediction**. To better evaluate model performance on these two tasks, we designed detailed and diverse evaluation methods, with **precise and comprehensive** results. Meanwhile, we created a **human-experience-based CoT (Chain-of-Thought) reasoning chain** designed by legal experts, aiming to test whether the model's reasoning ability improves when provided with reasoning chains, and whether it aligns more closely with human judicial processes.
 
-## 📄 介绍
-MSLR 经精心设计，可以对大模型的**法律文档理解和案情分析推理能力**进行精确评估。我们设计了一套半自动化的数据集构建方案，通过**人工+LLM**的方式，构建了一个全面的内幕交易数据集，同时也可以很轻易地扩展数据集的数量与案情的种类。再次基础上，我们设计了**结构化信息抽取** 和 **案件事实分析与判决预测** 两个任务。为了更好地评估模型在这两个任务上的性能，我们设计了详细的不同评估方式，评估结果**精确全面**。同时，我们通过人工专家设计了一条**基于人类经验的CoT思维链**，希望测试模型在得到推理链的情况下推理能力是否能有所提升，与人类司法过程是否有更强的一致性。
+## 📖 Data Sources and Construction Process
 
-## 📖 数据来源与构建流程
+### Data Sources
+The MSLR data mainly comes from the following three public channels, focusing on **insider trading cases** from 2005 to 2024, covering administrative cases, criminal cases, and non-prosecution cases:
 
-### 数据来源
-MSLR 的数据主要来自以下三个公开渠道，聚焦于2005年至2024年间的**内幕交易案例**，覆盖行政案件、刑事案件及不起诉案件等法律阶段：
+- Administrative penalty decisions issued by the China Securities Regulatory Commission (CSRC);
+- Criminal judgment documents published on the China Judgments Online;
+- Non-prosecution decisions publicly disclosed by national procuratorates.
 
-- 中国证券监督管理委员会（CSRC）发布的行政处罚决定书；
-- 中国裁判文书网公布的刑事判决书；
-- 全国检察机关公开的不起诉决定书。
+Each original legal document was collected in `.docx`, `.pdf`, or `.html` format, then converted into structured text for unified processing, while recording key information such as **document number, judgment date, and source link**. We removed some publicly available documents without specific case descriptions and outcomes, retaining only valid documents.
 
-每份原始法律文书以 `.docx`、`.pdf` 或 `.html` 格式采集，并转换为结构化文本进行统一处理，同时记录关键信息如**文书编号、裁决日期与来源链接**。我们删去了一些没有给出具体案件描述与结果的公开文书，保留了有效的部分。
+### Structured Data Design
+In collaboration with legal experts, we developed a unified structured field system, detailed in `data/schema.json`, covering six major dimensions: insider information identification, basic party information, trading behavior, illegal gains calculation, applicable legal provisions, and final penalty results. All fields strictly align with the "Securities Law of the People's Republic of China," "Criminal Law of the People's Republic of China," "Civil Code," and other relevant statutes, ensuring **legal consistency, semantic comparability**, and structured support for judicial reasoning.
 
-### 结构化数据设计
-我们与法律专家合作，制定了统一的结构化字段体系，详见`data/schema.json`，涵盖内幕信息识别、当事人基本信息、交易行为、非法所得计算、适用法条及最终处罚结果等六大维度。所有字段严格对齐《中华人民共和国证券法》《中华人民共和国刑法》《民法典》等相关条款，确保数据的**法律一致性、语义可比性**与司法推理的结构化支持能力。
+### Data Annotation Process
+#### Manual Annotation
+In the first phase, we manually annotated over **1000 real case documents** item by item, labeling more than **50,000 fields** according to the structured template. All annotations were completed by professionals with legal backgrounds, with **cross-review and sampling quality control mechanisms** in place to ensure consistency and accuracy of legal interpretation.
+#### LLM-Assisted Extraction + Manual Verification
+After initially establishing a high-quality seed set, we expansively processed over **400 additional case documents (2020–2024)**. After experimental comparison of different large model extraction strategies, we finally selected DeepSeek-V3, which offers a good balance of performance and cost-effectiveness, as the automatic extraction tool. To enhance its adaptability to legal tasks, we optimized the extraction prompt templates. All automatic outputs were manually verified by legal experts on a field-by-field basis to ensure structural completeness and semantic accuracy.
 
-### 数据标注过程
-#### 人工标注
-在第一阶段，我们对超过 **1000份真实案例文书**进行了逐项人工标注，依据结构模板标注超过 **50,000 个字段**。所有标注由具备法律背景的专业人员完成，并设置了**交叉复核与抽样质检机制**，以确保一致性与法律解释的准确性。
-#### LLM辅助抽取 + 人工核验
-在初步建立高质量种子集后，我们扩展性地处理了 **400 余份新增案例文书（2020–2024年）**。在实验对比不同大模型抽取策略后，最终选用性能与性价比兼优的 DeepSeek-V3 作为自动抽取工具。为提升其在法律任务下的适应能力，我们对抽取 prompt 模板进行了专门优化。所有自动输出均由法律专家逐字段进行**人工复核**，确保结构完整与语义准确。
+![data contruction](figs/Fig1_pipeline_01.png)
 
-![data contruction](figs/data-contruction.png)
+### Data Statistics Overview
 
-### 数据统计概览
+| Metric                     | Value   |
+|----------------------------|---------|
+| Time Span                  | 2005–2024 |
+| Total Number of Cases      | 1389    |
+| Average Number of Fields per Document | 43.03   |
+| Total Structured Field Entries | 59,771  |
+| Average Core Field Completion Rate | 86.58%  |
+| Average Number of Characters per Document | 2515.99 |
 
-| 指标 | 数值 |
-|------|------|
-| 时间跨度 | 2005–2024 |
-| 案例总数 | 1389 |
-| 每份文书平均字段数 | 43.03 |
-| 总结构化字段条目 | 59,771 |
-| 核心字段平均填写率 | 86.58% |
-| 每份文书平均字数 | 2515.99 |
+### Data Format
+All raw and structured data are stored in the `data` folder. Processed data are saved in JSON file format, located in `data/processed`, which can be loaded using `json.load`. The `input.json` file summarizes the input parts from each JSON file for convenient usage.
 
-### 数据格式
-所有的原始和结构化数据都储存在 `data` 文件夹下，处理后的数据都以json文件格式存储，具体见 `data/processed` ，可以通过 `json.load` 的方式加载使用。其中`input.json` 文件是汇总了每个json文件中作为输入的部分，方便使用者调用。
+## 🧩 Benchmark Task Definitions
 
-## 🧩 Benchmark任务定义
+### Task 1: LLM Automatic Annotation
 
-### Task 1：大模型自动标注（LLM Automatic Annotation）
+This task aims to extract standardized key fields from legal case paragraphs, simulating the element summarization process performed by legal professionals after reading documents. Fields include insider information identification, party information, trading behavior, illegal gains, applicable legal provisions, and penalty results. Specific field definitions can be found in `data/extract_schema.json`.
 
-该任务旨在从法律案情段落中提取标准化的关键字段，模拟法律专业人士阅读文书后的要素归纳过程。字段涵盖内幕信息的认定、当事人信息、交易行为、违法所得、适用法律条款与处罚结果等，具体字段定义见 `data/extract_schema.json`。
+- Input: Case description paragraph from the original legal document (natural language text)
+- Output: Structured JSON format, filling in various field information
+- Evaluation Metrics:
+  - Field Accuracy: Strict matching accuracy of field values
+  - Semantic Accuracy: Matching rate based on semantic similarity of fields
+  - Overall Accuracy: Weighted composite score of the above two
+  - Field Completeness Rate (FCR): Coverage and format completeness of output fields
 
-- 输入：原始法律文书中的案情描述段（自然语言文本）
-- 输出：结构化 JSON 格式，填充各类字段信息
-- 评估指标：
-  - Field Accuracy：字段值的严格匹配准确率
-  - Semantic Accuracy：字段语义相似度判断的匹配率
-  - Overall Accuracy：上述两项的加权综合评分
-  - Field Completeness Rate (FCR)：输出结构的字段覆盖与格式完整性
+### Task 2: Chinese Multi-step Legal Reasoning under the IRAC Framework
+This task focuses on whether the model can generate logically rigorous and structurally complete legal analysis processes and final judgments based on case descriptions, evaluating reasoning quality and coverage of legal elements.
 
+- Input Modes:
+  - Standard Input (Std): Provide only case description, allowing the model to autonomously complete analysis and judgment
+  - Chain-of-Thought Input (CoT): Provide case description + structured reasoning prompts, guiding the model to reason in the order of "Fact Identification → Legal Application → Judgment Result"
+- Output Form: Natural language complete analysis process, covering core facts, applicable legal provisions, and judgment conclusions
+- Evaluation Metrics:
+  - LLM Score: Scores assigned by high-performance large language models based on logic, completeness, and legality (graded: A/B/C)
+  - IRAC Recall: Measures consistency between model output and manually annotated structured fields (field-level matching)
 
-### Task 2: 基于 IRAC 框架的中文多步法律推理 (Chinese Multi-step Legal Reasoning under the IRAC Framework)
-此任务关注模型能否基于案情描述生成逻辑严密、结构完整的法律分析过程与最终判决，评估其推理质量与法律要素的覆盖情况。
-
-- 输入模式：
-  - 标准输入（Std）：仅提供案件描述，让模型自主完成分析与判断
-  - 链式输入（CoT）：提供案件描述 + 结构化推理提示，引导模型按“事实识别 → 法律适用 → 裁判结果”的顺序推理
-- 输出形式：自然语言撰写的完整分析过程，涵盖核心事实、法律条款适用与裁判结论
-- 评估指标：
-  - LLM Score：由高性能大语言模型依据逻辑性、完整性和合法性对输出评分（等级制：A/B/C）
-  - IRAC Recall：衡量模型输出与人工标注结构字段的一致性程度（字段级匹配）
-
-
-#### CoT 推理模板构建
-专业法律从业者为模型设计了一套基于人类经验的 Chain-of-Thought（CoT）提示词模板，专门用于引导模型在内幕交易案件中进行类比于司法实践的逐步推理。
-在设计过程中，充分参考了《中华人民共和国刑法》《中华人民共和国民法典》《证券法》等相关法律条文，确保推理链在法律适用与表述上的**严谨性与权威性**。同时，我们邀请具有多年审判实务经验的法律从业者参与模板构建，依据**真实裁判逻辑**抽象出司法机关在处理内幕交易案件时普遍遵循的推理路径。
+#### CoT Reasoning Template Construction
+Professional legal practitioners designed a Chain-of-Thought (CoT) prompt template based on human experience to guide the model in stepwise reasoning similar to judicial practice in insider trading cases. During design, full reference was made to the "Criminal Law of the People's Republic of China," "Civil Code," "Securities Law," and other relevant statutes, ensuring **rigor and authority** in legal application and expression. Furthermore, legal practitioners with years of trial experience participated in template construction, abstracting the common reasoning paths judicial authorities follow when handling insider trading cases based on **real adjudication logic**.
 ```text
-内幕信息形成 → 信息知悉 → 交易行为 → 非法所得 → 法律适用 → 处罚决定
+Insider Information Formation → Information Awareness → Trading Behavior → Illegal Gains → Legal Application → Penalty Decision
 ```
 
-## 📊 实验设计
-在实验中，我们评估了三大类模型在两个任务上的性能表现.
-此外，我们在 `example/` 目录中提供了一个示例下不同模型输出结果，直观展示不同模型在实际法律文本处理中的差异与能力边界。
+## 📊 Experimental Design
+In the experiments, we evaluated the performance of three major categories of models on the two tasks. Additionally, we provide example outputs from different models in the `example/` directory, visually demonstrating differences and capability boundaries of various models in real legal text processing.
 
-### 实验模型
-- **通用大模型（General-purpose LLMs）**：如 GPT-4、Qwen2.5、GLM4、DeepSeek-V3 等，具备全面的文本理解与生成能力;
-- **法律领域模型（Legal-domain LLMs）**：如 CleverLaw、Lawyer-LLM 等，针对法律语料微调，具有更强的专业性;
-- **推理增强模型（Reasoning-augmented LLMs）**：如 DeepSeek-R1、QwQ-32B 等，通过引入快慢思维机制，拥有更强的推理能力。
+### Experimental Models
+- **General-purpose LLMs:** such as GPT-4, Qwen2.5, GLM4, DeepSeek-V3, etc., with comprehensive text understanding and generation capabilities;
+- **Legal-domain LLMs:** such as CleverLaw, Lawyer-LLM, etc., fine-tuned on legal corpora, with stronger professionalism;
+- **Reasoning-augmented LLMs:** such as DeepSeek-R1, QwQ-32B, etc., incorporating fast and slow thinking mechanisms, possessing stronger reasoning abilities.
 
+## 🔧 How to Evaluate Models
+This project provides a high-quality, structured Chinese legal judgment benchmark covering dual tasks of "structured information extraction" and "legal fact analysis and judgment prediction," and tests the impact of Chain-of-Thought prompts on model reasoning effectiveness.
 
-## 🔧 如何评估模型
-本项目提供了一个高质量、结构化的中文法律判决基准，覆盖“结构化信息抽取”与“法律事实分析与判决预测”双任务，并测试了 Chain-of-Thought 提示对模型推理效果的影响。
-
-### 环境准备
-1. **Python版本：** 建议使用Python ≥ 3.10
-2. **安装依赖**
+### Environment Preparation
+1. **Python Version:** Recommended Python ≥ 3.10
+2. **Install Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
-3. **准备模型文件：**
-    - 将待评估的大语言模型文件或配置于 `model/` 目录
-    - 下载中文法律语义嵌入模型 `ChatLaw-Text2Vec`，并放置于 `embedding_model/` 路径下，用于语义相似度计算
+3. **Prepare Model Files:**
+    - Place the large language model files or configurations to be evaluated in the `model/` directory
+    - Download the Chinese legal semantic embedding model `ChatLaw-Text2Vec` and place it under the `embedding_model/` path for semantic similarity calculation
 
-
-## 执行任务流程
-### 运行基于 IRAC 框架的中文多步法律推理
+## Task Execution Process
+### Run Chinese Multi-step Legal Reasoning based on the IRAC Framework
 ```bash
 python script/predict.py \
   --model_path /path/to/model \
   --data_path ./data/input_data.json \
   --output_dir ./output
 ```
-> 在运行的过程中会将Std输出和CoT输出一起保存到输出的json文件中，如果要修改CoT，请直接修改python文件中的prompt
+> During execution, both Std output and CoT output will be saved together in the output JSON file. To modify CoT prompts, directly edit the prompt in the Python script.
 
-### 模型评估脚本
-#### 评估Task 1 大模型自动标注
-**1. Overall Score（字段准确率 + 语义相似度）** 
+### Model Evaluation Scripts
+#### Evaluate Task 1 LLM Automatic Annotation
+**1. Overall Score (Field Accuracy + Semantic Similarity)**
 ```bash
 python script/evaluate_Overall_task1.py \
   --gold_file data/processed \
@@ -121,14 +114,14 @@ python script/evaluate_Overall_task1.py \
   --semantic_threshold 0.6
 ```
 
-**2. FRC Score（字段完整率）**
+**2. FRC Score (Field Completeness Rate)**
 ```bash
 python script/evaluate_FRC_task1.py \
   --data_dir ./output/task1 \
   --gold_dir ./data/processed
 ```
-#### 评估Task2基于 IRAC 框架的中文多步法律推理
-**1. LLM Score（推理质量等级A/B/C，由模型审阅）**
+#### Evaluate Task 2 Chinese Multi-step Legal Reasoning under IRAC Framework
+**1. LLM Score (Reasoning Quality Grade A/B/C, reviewed by model)**
 ```bash
 python script/evaluate_LLMScore_task2.py \
   --gold_dir data/processed \
@@ -136,7 +129,7 @@ python script/evaluate_LLMScore_task2.py \
   --eval_scores_path result/llm_score_eval.json
 ```
 
-**2.Relative Score（推理输出与结构字段的一致性）**
+**2. Relative Score (Consistency between reasoning output and structured fields)**
 ```bash
 python script/evaluate_RelScore_task2.py \
   --gold_dir data/processed \
@@ -146,12 +139,11 @@ python script/evaluate_RelScore_task2.py \
   --output_path result/relscore_task2.json
 ```
 
+## 📎 Citation
 
-## 📎 引用方式
+If you use MSLR data or code, please cite our paper:
+> AAAI 2026: Benchmarking Multi-Step Legal Reasoning and Analyzing Chain-of-Thought Effects in Large Language Models
 
-如果您使用了 MSLR 数据或代码，请引用我们的论文：
-> 目前论文仍在审稿阶段，公开后会更新此仓库。
+## 🛡️ Disclaimer
 
-## 🛡️ 声明
-
-MSLR 所有法律数据均采自公开渠道，严格匿名化处理，仅用于研究用途，严禁用于真实法律判断。
+All legal data in MSLR are sourced from public channels, strictly anonymized, used only for research purposes, and strictly prohibited for real legal judgments.
