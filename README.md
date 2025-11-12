@@ -146,7 +146,15 @@ python script/evaluate_RelScore_task2.py \
 ## 📎 Citation
 
 If you use MSLR data or code, please cite our paper:
-> AAAI 2026: Benchmarking Multi-Step Legal Reasoning and Analyzing Chain-of-Thought Effects in Large Language Models
+> @misc{yu2025benchmarkingmultisteplegalreasoning,
+      title={Benchmarking Multi-Step Legal Reasoning and Analyzing Chain-of-Thought Effects in Large Language Models}, 
+      author={Wenhan Yu and Xinbo Lin and Lanxin Ni and Jinhua Cheng and Lei Sha},
+      year={2025},
+      eprint={2511.07979},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2511.07979}, 
+}
 
 ## 🛡️ Disclaimer
 
