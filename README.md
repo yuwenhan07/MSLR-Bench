@@ -77,7 +77,7 @@ Insider Information Formation → Information Awareness → Trading Behavior →
 ```
 
 ## 📊 Experimental Design
-In the experiments, we evaluated the performance of three major categories of models on the two tasks. Additionally, we provide example outputs from different models in the `example/` directory, visually demonstrating differences and capability boundaries of various models in real legal text processing.
+In the experiments, we evaluated the performance of three major categories of models on the two tasks. 
 
 ### Experimental Models
 - **General-purpose LLMs:** such as GPT-4, Qwen2.5, GLM4, DeepSeek-V3, etc., with comprehensive text understanding and generation capabilities;
